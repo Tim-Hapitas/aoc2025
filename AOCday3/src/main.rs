@@ -1,5 +1,4 @@
 use std::fs;
-use std::cmp::max;
 
 fn main() {
     let battery_banks = fs::read_to_string("src/batterybanks.txt")
@@ -10,70 +9,42 @@ fn main() {
 
     // println!("{:?}", battery_banks);
 
-    let part_one_answer: u32 = battery_banks.iter().map(|bank| {
-        find_max_joltage(bank)
+    let part_one_answer: u64 = battery_banks.iter().map(|bank| {
+        find_max_joltage(bank, 2)
+    }).sum();
+
+    let part_two_answer: u64 = battery_banks.iter().map(|bank| {
+        find_max_joltage(bank, 12)
     }).sum();
 
     println!("Part one answer: {}", part_one_answer);
+    println!("Part two answer: {}", part_two_answer);
 }
 
-pub fn find_max_joltage_part_one(bank: &Vec<u32>) -> u32 {
-    let bank_matrix = BankMatrix::build_from_bank(bank);
+pub fn find_max_joltage(bank: &Vec<u32>, num_batteries: usize) -> u64 {
+    let bank_length = bank.len();
+    let mut max_joltage = 0u64;
+    let mut start: usize = 0;
 
-    let mut max_joltage = 0;
-    for i in 0..bank_matrix.size {
-        for j in (i + 1)..bank_matrix.size {
-            max_joltage = max_joltage.max(bank_matrix.elements[i][j])
-        }
-    }
+    for i in 0..num_batteries {
+        let mut max_dig = 0;
+        let mut best_pos = start;
 
-    max_joltage
-}
+        let batteries_left = num_batteries - (i + 1);
+        let end = bank_length - batteries_left;
 
-pub fn find_max_joltage_part_two(bank: &Vec<u32>, pair_indices: &Vec<usize>) -> Vec<(usize, usize)>{
-    let mut bank_owned = bank.to_vec();
-    let mut battery_indices: Vec<(usize, usize)> = Vec::new();
-    let num_pairs: usize = 6;
-
-    for pair in (0..num_pairs) {
-        let bank_matrix = BankMatrix::build_from_bank(bank);
-        let mut max_joltage = 0;
-        let mut max_indices = (0, 0);
-
-        for i in 0..bank_matrix.size {
-            for j in (i + 1)..bank_matrix.size {
-                max_joltage = max_joltage.max(bank_matrix.elements[i][j]);
-                max_indices = (i, j);
+        for pos in start..end {
+            if bank[pos] > max_dig {
+                max_dig = bank[pos];
+                best_pos = pos;
             }
         }
 
-        bank_owned.remove(max_indices.0);
-        bank_owned.remove(max_indices.1);
-
-        battery_indices.push(max_indices);
+        max_joltage = max_joltage * 10 + max_dig as u64;
+        start = best_pos + 1;
     }
 
-    battery_indices
-}
-
-pub struct BankMatrix {
-    elements: Vec<Vec<u32>>,
-    size: usize,
-}
-
-impl BankMatrix {
-    pub fn build_from_bank(bank: &Vec<u32>) -> Self {
-        let bank = bank.to_vec();
-        let size = bank.len();
-
-        let elements: Vec<Vec<u32>> = (0..size).map(|i| {
-            (0..size).map(|j| bank[i] * 10 + bank[j])
-                .collect()
-        })
-        .collect();
-
-        BankMatrix { elements, size }
-    }
+    max_joltage
 }
 
 
