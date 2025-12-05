@@ -1,0 +1,1 @@
+C:\RustProjects\AdventOfCode\AOCday5\target\debug\AOCday5.exe: C:\RustProjects\AdventOfCode\AOCday5\src\main.rs C:\RustProjects\AdventOfCode\aoc-common\src\idrange.rs C:\RustProjects\AdventOfCode\aoc-common\src\lib.rs
